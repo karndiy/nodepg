@@ -42,6 +42,18 @@ app.get('/', (req, res) => {
   res.send('hi');
 });
 
+
+app.get('/users', async (req, res) => {
+  try {
+      const result = await pool.query('SELECT * FROM users ORDER BY id ASC limit 10');
+      res.render('users', { users: result.rows });
+  } catch (err) {
+      console.error('Error fetching users:', err.stack);
+      res.status(500).send('Internal Server Error');
+  }
+});
+
+
 // Test database connection
 app.get('/api/test-db', async (req, res) => {
   try {
@@ -164,6 +176,17 @@ io.on('connection', (socket) => {
     } catch (err) {
       console.error('Error fetching products:', err.stack);
       socket.emit('error', { error: 'Failed to fetch products' });
+    }
+  });
+
+   // Emit all users when a client requests user data
+   socket.on('requestUsers', async () => {
+    try {
+        const result = await pool.query('SELECT * FROM users ORDER BY id Desc limit 10');
+        socket.emit('usersList', result.rows); // Send the list of users to the client
+    } catch (err) {
+        console.error('Error fetching users:', err.stack);
+        socket.emit('error', { error: 'Failed to fetch users' });
     }
   });
 

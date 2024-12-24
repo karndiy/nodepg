@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <h1>Users</h1>
+    <div id="users-container">
+        <ul id="user-list">
+            <% users.forEach(user => { %>
+                <li>
+                    <strong>Name:</strong> <%= user.name %> |
+                    <strong>Email:</strong> <%= user.email %> |
+                    <strong>Age:</strong> <%= user.age %>
+                </li>
+            <% }) %>
+        </ul>
+    </div>
+
+    <script>
+       // Request all users when the page loads
+        socket.emit('requestUsers');
+
+        // Receive the list of users
+        socket.on('usersList', (users) => {
+            const userList = document.getElementById('user-list');
+            userList.innerHTML = ''; // Clear the list
+            users.forEach(user => {
+                const li = document.createElement('li');
+                li.innerHTML = `<strong>Name:</strong> ${user.name} | 
+                                <strong>Email:</strong> ${user.email} | 
+                                <strong>Age:</strong> ${user.age}`;
+                userList.appendChild(li);
+            });
+        });
+
+        // Listen for new user additions
+        socket.on('newUser', (user) => {
+            const userList = document.getElementById('user-list');
+            const li = document.createElement('li');
+            li.innerHTML = `<strong>Name:</strong> ${user.name} | 
+                            <strong>Email:</strong> ${user.email} | 
+                            <strong>Age:</strong> ${user.age}`;
+            userList.appendChild(li);
+        });
+    </script>
+</body>
+</html>
