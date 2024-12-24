@@ -39,14 +39,19 @@
         });
 
         // Listen for new user additions
-        socket.on('newUser', (user) => {
-            console.log(user);
+        socket.on('newUser', (users) => {
+            console.log(users);
             const userList = document.getElementById('user-list');
-            const li = document.createElement('li');
-            li.innerHTML = `<strong>Name:</strong> ${user.name} | 
+           
+
+            users.forEach((user) => {
+                const li = document.createElement('li');
+                
+                li.innerHTML = `<strong>Name:</strong> ${user.name} | 
                             <strong>Email:</strong> ${user.email} | 
                             <strong>Age:</strong> ${user.age}`;
-            userList.appendChild(li);
+                userList.appendChild(li);
+            });
         });
     </script>
 </body>
