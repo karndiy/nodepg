@@ -1,45 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real-Time Product List</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Products</title>
+  <script src="/socket.io/socket.io.js"></script> <!-- Socket.IO client-side script -->
 </head>
 <body>
-    <h1>Product List</h1>
-    <ul id="product-list"></ul>
+  <h1>Our Products</h1>
+  <ul id="product-list">
+    <% products.forEach(product => { %>
+      <li id="product-<%= product.id %>"><%= product.name %> - <%= product.price %></li>
+    <% }) %>
+  </ul>
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-        const socket = io();  // Connect to WebSocket server
+  <!-- <script>
+    const socket = io(); // Connect to WebSocket server
 
-        // Request the initial list of products when the page loads
-        socket.emit('requestProducts');
+    // Request product data when the page loads
+    socket.emit('requestProducts');
 
-        // Listen for the 'productsList' event to display products
-        socket.on('productsList', (products) => {
-            const productList = document.getElementById('product-list');
-            productList.innerHTML = '';  // Clear existing products
+    // Listen for the 'productsList' event and update the product list
+    socket.on('productsList', (products) => {
+      const productList = document.getElementById('product-list');
+      productList.innerHTML = ''; // Clear existing list
 
-            // Loop through each product and add it to the list
-            products.forEach((product) => {
-                const newItem = document.createElement('li');
-                newItem.textContent = `${product.name} - ${product.price}`;
-                productList.appendChild(newItem);
-            });
-        });
+      products.forEach((product) => {
+        const productItem = document.createElement('li');
+        productItem.id = 'product-' + product.id;
+        productItem.textContent = `${product.name} - ${product.price}`;
+        productList.appendChild(productItem);
+      });
+    });
 
-        // Listen for the 'newProduct' event to handle new products in real-time
-        socket.on('newProduct', (newProducts) => {
-            const productList = document.getElementById('product-list');
-
-            // Add each new product to the list
-            newProducts.forEach((product) => {
-                const newItem = document.createElement('li');
-                newItem.textContent = `${product.name} - ${product.price}`;
-                productList.appendChild(newItem);
-            });
-        });
-    </script>
+    // Handle any errors
+    socket.on('error', (err) => {
+      alert('Error: ' + err.error);
+    });
+  </script> -->
+  <script>
+    const socket = io(); // Establish WebSocket connection
+  
+    // Request product list from server when the page loads
+    socket.emit('requestProducts');
+  
+    // Handle receiving the product list and display it
+    socket.on('productsList', (products) => {
+      const productList = document.getElementById('product-list');
+      productList.innerHTML = ''; // Clear existing list
+  
+      products.forEach((product) => {
+        const productItem = document.createElement('li');
+        productItem.textContent = `${product.name} - ${product.price}`;
+        productList.appendChild(productItem);
+      });
+    });
+  
+    // Listen for the 'newProduct' event to dynamically add the new products
+    socket.on('newProduct', (newProducts) => {
+      const productList = document.getElementById('product-list');
+      
+      newProducts.forEach((newProduct) => {
+        const newItem = document.createElement('li');
+        newItem.textContent = `${newProduct.name} - ${newProduct.price}`;
+        productList.appendChild(newItem);
+      });
+    });
+  </script>
+  
 </body>
 </html>
