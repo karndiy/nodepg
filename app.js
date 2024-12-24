@@ -44,9 +44,9 @@ app.get('/', (req, res) => {
 
 app.get('/users', async (req, res) => {
   try {
-      const result = await pool.query('SELECT * FROM users ORDER BY id Desc LIMIT 5;');
+      const result = await pool.query('SELECT * FROM users ORDER BY id DESC LIMIT 5;');
       const users = result.rows;
-      res.render('user', {users });
+      res.render('users', { users }); // Render 'users' instead of 'user'
   } catch (err) {
       console.error('Error fetching users:', err.stack);
       res.status(500).send('Internal Server Error');
