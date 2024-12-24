@@ -45,7 +45,7 @@ app.get('/', (req, res) => {
 
 app.get('/users', async (req, res) => {
   try {
-      const result = await pool.query('SELECT * FROM users ORDER BY id ASC limit 10');
+      const result = await pool.query('SELECT * FROM users ORDER BY id DESC limit 10');
       const users = result.rows;
       res.render('user', {users } );
   } catch (err) {
