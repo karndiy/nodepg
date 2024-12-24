@@ -15,7 +15,7 @@ const pool = new Pool({
 
 app.use(express.json());
 
-app.get('/api/test-db', async (req, res) => {
+app.get('/', async (req, res) => {
   res.json('hi');
 });
 
