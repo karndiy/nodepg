@@ -152,9 +152,15 @@ app.get('/api/gen_product/:count?', async (req, res) => {
       // Insert each product into the database
       const result = await pool.query(insertQuery, [product.name, product.description, product.price]);
       products.push(result.rows[0]); // Collect the inserted product
+   
     }
 
+    // Broadcast the new product to all connected clients
+    io.emit('newProduct', products);  // Emit to all connected clients
+
     res.json({ success: true, products });
+
+    //res.json({ success: true, products });
   } catch (err) {
     console.error('Error generating products:', err.stack);
     res.status(500).json({ success: false, error: 'Internal Server Error' });

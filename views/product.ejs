@@ -14,7 +14,7 @@
     <% }) %>
   </ul>
 
-  <script>
+  <!-- <script>
     const socket = io(); // Connect to WebSocket server
 
     // Request product data when the page loads
@@ -37,6 +37,36 @@
     socket.on('error', (err) => {
       alert('Error: ' + err.error);
     });
+  </script> -->
+  <script>
+    const socket = io(); // Establish WebSocket connection
+  
+    // Request product list from server when the page loads
+    socket.emit('requestProducts');
+  
+    // Handle receiving the product list and display it
+    socket.on('productsList', (products) => {
+      const productList = document.getElementById('product-list');
+      productList.innerHTML = ''; // Clear existing list
+  
+      products.forEach((product) => {
+        const productItem = document.createElement('li');
+        productItem.textContent = `${product.name} - ${product.price}`;
+        productList.appendChild(productItem);
+      });
+    });
+  
+    // Listen for the 'newProduct' event to dynamically add the new products
+    socket.on('newProduct', (newProducts) => {
+      const productList = document.getElementById('product-list');
+      
+      newProducts.forEach((newProduct) => {
+        const newItem = document.createElement('li');
+        newItem.textContent = `${newProduct.name} - ${newProduct.price}`;
+        productList.appendChild(newItem);
+      });
+    });
   </script>
+  
 </body>
 </html>
