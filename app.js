@@ -2,8 +2,13 @@ const express = require('express');
 const { Pool } = require('pg');
 const fs = require('fs');
 const { faker } = require('@faker-js/faker'); // Import faker
+const path = require('path');
+const http = require('http');
+const socketIo = require('socket.io');
 
 const app = express();
+const server = http.createServer(app);
+const io = socketIo(server); // Initialize socket.io with the HTTP server
 
 // PostgreSQL connection URI
 const connectionString = 'postgresql://node_pg_w9mi_user:z62QJkSrRb1OwbNuCWhyLyyYgksoFtJ6@dpg-ctl2imbv2p9s738csqv0-a.singapore-postgres.render.com/node_pg_w9mi';
@@ -18,6 +23,9 @@ const pool = new Pool({
 });
 
 
+
+
+
 // Run the `init.sql` file to initialize the database
 const initDatabase = async () => {
   try {
@@ -28,6 +36,10 @@ const initDatabase = async () => {
     console.error("Error initializing database:", err.stack);
   }
 };
+
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Middleware to parse JSON
 app.use(express.json());
@@ -138,7 +150,26 @@ app.get('/api/gen_product/:count?', async (req, res) => {
 
 
 
+// WebSocket connection
+io.on('connection', (socket) => {
+  console.log('A user connected');
+  
+  // Emit an event to send products to the client
+  socket.on('requestProducts', async () => {
+    try {
+      const result = await pool.query('SELECT * FROM products ORDER BY id ASC');
+      socket.emit('productsList', result.rows); // Send products data to the client
+    } catch (err) {
+      console.error('Error fetching products:', err.stack);
+      socket.emit('error', { error: 'Failed to fetch products' });
+    }
+  });
 
+  // Handle disconnection
+  socket.on('disconnect', () => {
+    console.log('User disconnected');
+  });
+});
 
 
 // Start the server

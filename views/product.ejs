@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Products</title>
+  <script src="/socket.io/socket.io.js"></script> <!-- Socket.IO client-side script -->
+</head>
+<body>
+  <h1>Our Products</h1>
+  <ul id="product-list">
+    <% products.forEach(product => { %>
+      <li id="product-<%= product.id %>"><%= product.name %> - <%= product.price %></li>
+    <% }) %>
+  </ul>
+
+  <script>
+    const socket = io(); // Connect to WebSocket server
+
+    // Request product data when the page loads
+    socket.emit('requestProducts');
+
+    // Listen for the 'productsList' event and update the product list
+    socket.on('productsList', (products) => {
+      const productList = document.getElementById('product-list');
+      productList.innerHTML = ''; // Clear existing list
+
+      products.forEach((product) => {
+        const productItem = document.createElement('li');
+        productItem.id = 'product-' + product.id;
+        productItem.textContent = `${product.name} - ${product.price}`;
+        productList.appendChild(productItem);
+      });
+    });
+
+    // Handle any errors
+    socket.on('error', (err) => {
+      alert('Error: ' + err.error);
+    });
+  </script>
+</body>
+</html>
