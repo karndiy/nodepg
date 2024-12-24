@@ -107,7 +107,7 @@ app.get('/api/genuser/:count?', async (req, res) => {
 // Serve the product page with dynamic content
 app.get('/products', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM products limit 5 ORDER BY id desc');
+    const result = await pool.query('SELECT * FROM products  ORDER BY id desc LIMIT 5;');
     const products = result.rows;
     res.render('product', { products });
   } catch (err) {
