@@ -104,6 +104,19 @@ app.get('/api/genuser/:count?', async (req, res) => {
 });
 
 
+// Serve the product page with dynamic content
+app.get('/products', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM products ORDER BY id ASC');
+    const products = result.rows;
+    res.render('product', { products });
+  } catch (err) {
+    console.error('Error fetching products:', err.stack);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
 // Define the `/api/user` route
 app.get('/api/products', async (req, res) => {
   try {
