@@ -159,7 +159,7 @@ io.on('connection', (socket) => {
   // Emit an event to send products to the client
   socket.on('requestProducts', async () => {
     try {
-      const result = await pool.query('SELECT * FROM products ORDER BY id ASC');
+      const result = await pool.query('SELECT * FROM products ORDER BY id Desc limit 10');
       socket.emit('productsList', result.rows); // Send products data to the client
     } catch (err) {
       console.error('Error fetching products:', err.stack);
