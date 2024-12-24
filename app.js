@@ -1,19 +1,18 @@
 const express = require('express');
 const { Pool } = require('pg');
 const fs = require('fs');
-const { faker } = require('@faker-js/faker'); // Import faker
+const { faker } = require('@faker-js/faker');
 const path = require('path');
 const http = require('http');
 const socketIo = require('socket.io');
 
 const app = express();
-const server = http.createServer(app);
-const io = socketIo(server); // Initialize socket.io with the HTTP server
+const server = http.createServer(app); // Create HTTP server for Socket.IO
+const io = socketIo(server); // Initialize Socket.IO with the HTTP server
 
 // PostgreSQL connection URI
 const connectionString = 'postgresql://node_pg_w9mi_user:z62QJkSrRb1OwbNuCWhyLyyYgksoFtJ6@dpg-ctl2imbv2p9s738csqv0-a.singapore-postgres.render.com/node_pg_w9mi';
-//const connectionString = 'postgresql://node_pg_w9mi_user:z62QJkSrRb1OwbNuCWhyLyyYgksoFtJ6@dpg-ctl2imbv2p9s738csqv0-a/node_pg_w9mi';
-//postgresql://node_pg_w9mi_user:z62QJkSrRb1OwbNuCWhyLyyYgksoFtJ6@dpg-ctl2imbv2p9s738csqv0-a.singapore-postgres.render.com/node_pg_w9mi
+
 // Initialize PostgreSQL connection pool
 const pool = new Pool({
   connectionString,
@@ -21,10 +20,6 @@ const pool = new Pool({
     rejectUnauthorized: false, // Required for Render-hosted PostgreSQL
   },
 });
-
-
-
-
 
 // Run the `init.sql` file to initialize the database
 const initDatabase = async () => {
@@ -39,10 +34,8 @@ const initDatabase = async () => {
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Middleware to parse JSON
-app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public'))); // Serve static files from 'public'
+app.use(express.json()); // Middleware to parse JSON
 
 // Root endpoint
 app.get('/', (req, res) => {
@@ -59,7 +52,6 @@ app.get('/api/test-db', async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 });
-
 
 // Define the `/api/user` route
 app.get('/api/user', async (req, res) => {
@@ -103,11 +95,10 @@ app.get('/api/genuser/:count?', async (req, res) => {
   }
 });
 
-
 // Serve the product page with dynamic content
 app.get('/products', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM products  ORDER BY id desc LIMIT 5;');
+    const result = await pool.query('SELECT * FROM products ORDER BY id desc LIMIT 5;');
     const products = result.rows;
     res.render('product', { products });
   } catch (err) {
@@ -116,8 +107,7 @@ app.get('/products', async (req, res) => {
   }
 });
 
-
-// Define the `/api/user` route
+// API route for products
 app.get('/api/products', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM products ORDER BY id ASC');
@@ -128,7 +118,7 @@ app.get('/api/products', async (req, res) => {
   }
 });
 
-
+// Generate products and insert into the database
 app.get('/api/gen_product/:count?', async (req, res) => {
   const count = parseInt(req.params.count, 10) || 1; // Default to 1 if no count is provided
 
@@ -162,8 +152,6 @@ app.get('/api/gen_product/:count?', async (req, res) => {
   }
 });
 
-
-
 // WebSocket connection
 io.on('connection', (socket) => {
   console.log('A user connected');
@@ -185,12 +173,11 @@ io.on('connection', (socket) => {
   });
 });
 
-
 // Start the server
 const startServer = async () => {
   const PORT = process.env.PORT || 3000;
   await initDatabase(); // Initialize the database on startup
-  app.listen(PORT, () => {
+  server.listen(PORT, () => { // Listen on the HTTP server for both Express and Socket.IO
     console.log(`Server is running on http://localhost:${PORT}`);
   });
 };
