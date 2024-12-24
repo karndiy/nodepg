@@ -89,6 +89,20 @@ app.get('/api/genuser/:count?', async (req, res) => {
     res.status(500).json({ success: false, error: 'Internal Server Error' });
   }
 });
+
+
+// Define the `/api/user` route
+app.get('/api/products', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM products ORDER BY id ASC');
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Error fetching products:", err.stack);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+
 // Add /api/grn_product/:count? route to generate and insert multiple products (optional count, default is 1)
 app.get('/api/gen_product/:count?', async (req, res) => {
   const count = parseInt(req.params.count, 10) || 1; // Default to 1 if no count is provided
