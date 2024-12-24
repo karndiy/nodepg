@@ -98,10 +98,10 @@ app.get('/api/genuser/:count?', async (req, res) => {
 
       // Insert each user into the database
       const result = await pool.query(insertQuery, [user.name, user.email, user.age]);
-      const users = result.rows[0];
+      const insertedUser = result.rows[0];
       users.push(result.rows[0]); // Collect the inserted user
 
-      io.emit('newUser', users);
+      io.emit('newUser', insertedUser); 
     }
 
     res.json({ success: true, users });

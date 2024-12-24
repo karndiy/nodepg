@@ -38,18 +38,13 @@
             });
         });
 
-        // Listen for new user additions
         socket.on('newUser', (users) => {
-            console.log(users);
             const userList = document.getElementById('user-list');
-           
-
-            users.forEach((user) => {
+            users.forEach(user => {
                 const li = document.createElement('li');
-                
                 li.innerHTML = `<strong>Name:</strong> ${user.name} | 
-                            <strong>Email:</strong> ${user.email} | 
-                            <strong>Age:</strong> ${user.age}`;
+                                <strong>Email:</strong> ${user.email} | 
+                                <strong>Age:</strong> ${user.age}`;
                 userList.appendChild(li);
             });
         });
