@@ -1,6 +1,7 @@
 const express = require('express');
 const { Pool } = require('pg');
 const fs = require('fs');
+const { faker } = require('@faker-js/faker'); // Import faker
 
 const app = express();
 
@@ -58,12 +59,31 @@ app.get('/api/user', async (req, res) => {
   }
 });
 
-// Start the server
-// const PORT = process.env.PORT || 3000;
-// app.listen(PORT, () => {
-//   await initDatabase();
-//   console.log(`Server is running on http://localhost:${PORT}`);
-// });
+// Add `/api/genuser` route to generate and insert one random user
+app.get('/api/genuser', async (req, res) => {
+  try {
+    const user = {
+      name: faker.name.fullName(),
+      email: faker.internet.email(),
+      age: faker.datatype.number({ min: 18, max: 80 }), // Random age between 18 and 80
+    };
+
+    const insertQuery = `
+      INSERT INTO users (name, email, age)
+      VALUES ($1, $2, $3)
+      RETURNING *`;
+
+    // Insert the user into the database and return the inserted user
+    const result = await pool.query(insertQuery, [user.name, user.email, user.age]);
+
+    res.json({ success: true, user: result.rows[0] });
+  } catch (err) {
+    console.error('Error generating user:', err.stack);
+    res.status(500).json({ success: false, error: 'Internal Server Error' });
+  }
+});
+
+
 
 // Start the server
 const startServer = async () => {
