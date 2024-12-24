@@ -59,29 +59,37 @@ app.get('/api/user', async (req, res) => {
   }
 });
 
-// Add `/api/genuser` route to generate and insert one random user
-app.get('/api/genuser', async (req, res) => {
+// Add `/api/genuser/:count?` route to generate and insert multiple users (optional count, default is 1)
+app.get('/api/genuser/:count?', async (req, res) => {
+  const count = parseInt(req.params.count, 10) || 1; // Default to 1 if no count is provided
+
   try {
-    const user = {
-      name: faker.person.fullName(), // Updated for Faker.js v8+
-      email: faker.internet.email(),
-      age: faker.number.int({ min: 18, max: 80 }), // Updated for Faker.js v8+
-    };
+    const users = [];
 
-    const insertQuery = `
-      INSERT INTO users (name, email, age)
-      VALUES ($1, $2, $3)
-      RETURNING *`;
+    for (let i = 0; i < count; i++) {
+      const user = {
+        name: faker.person.fullName(), // Generate random full name
+        email: faker.internet.email(), // Generate random email
+        age: faker.number.int({ min: 18, max: 80 }), // Generate random age between 18 and 80
+      };
 
-    // Insert the user into the database and return the inserted user
-    const result = await pool.query(insertQuery, [user.name, user.email, user.age]);
+      const insertQuery = `
+        INSERT INTO users (name, email, age)
+        VALUES ($1, $2, $3)
+        RETURNING *`;
 
-    res.json({ success: true, user: result.rows[0] });
+      // Insert each user into the database
+      const result = await pool.query(insertQuery, [user.name, user.email, user.age]);
+      users.push(result.rows[0]); // Collect the inserted user
+    }
+
+    res.json({ success: true, users });
   } catch (err) {
-    console.error('Error generating user:', err.stack);
+    console.error('Error generating users:', err.stack);
     res.status(500).json({ success: false, error: 'Internal Server Error' });
   }
 });
+
 
 
 
