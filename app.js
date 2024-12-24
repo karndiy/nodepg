@@ -15,6 +15,10 @@ const pool = new Pool({
 
 app.use(express.json());
 
+app.get('/api/test-db', async (req, res) => {
+  res.json('hi');
+});
+
 // Test the database connection
 app.get('/api/test-db', async (req, res) => {
   try {
