@@ -22,13 +22,16 @@
     </div>
 
     <script>
-       // Request all users when the page loads
+        // Establish the socket connection
+        const socket = io();
+
+        // Request all users when the page loads
         socket.emit('requestUsers');
 
-        // Receive the list of users
+        // Receive the list of users and update the UI
         socket.on('usersList', (users) => {
             const userList = document.getElementById('user-list');
-            userList.innerHTML = ''; // Clear the list
+            userList.innerHTML = ''; // Clear the existing list
             users.forEach(user => {
                 const li = document.createElement('li');
                 li.innerHTML = `<strong>Name:</strong> ${user.name} | 
@@ -38,15 +41,14 @@
             });
         });
 
-        socket.on('newUser', (users) => {
+        // Listen for new users added dynamically and update the UI
+        socket.on('newUser', (user) => {
             const userList = document.getElementById('user-list');
-            users.forEach(user => {
-                const li = document.createElement('li');
-                li.innerHTML = `<strong>Name:</strong> ${user.name} | 
-                                <strong>Email:</strong> ${user.email} | 
-                                <strong>Age:</strong> ${user.age}`;
-                userList.appendChild(li);
-            });
+            const li = document.createElement('li');
+            li.innerHTML = `<strong>Name:</strong> ${user.name} | 
+                            <strong>Email:</strong> ${user.email} | 
+                            <strong>Age:</strong> ${user.age}`;
+            userList.appendChild(li);
         });
     </script>
 </body>

@@ -42,18 +42,16 @@ app.get('/', (req, res) => {
   res.send('hi');
 });
 
-
 app.get('/users', async (req, res) => {
   try {
       const result = await pool.query('SELECT * FROM users ORDER BY id DESC limit 10');
       const users = result.rows;
-      res.render('user', {users } );
+      res.render('user', {users });
   } catch (err) {
       console.error('Error fetching users:', err.stack);
       res.status(500).send('Internal Server Error');
   }
 });
-
 
 // Test database connection
 app.get('/api/test-db', async (req, res) => {
@@ -99,7 +97,7 @@ app.get('/api/genuser/:count?', async (req, res) => {
       // Insert each user into the database
       const result = await pool.query(insertQuery, [user.name, user.email, user.age]);
       const insertedUser = result.rows[0];
-      users.push(result.rows[0]); // Collect the inserted user
+      users.push(insertedUser); // Collect the inserted user
 
       io.emit('newUser', insertedUser); 
     }
