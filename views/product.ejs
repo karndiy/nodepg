@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real-Time Products</title>
+    <title>Real-Time Product List</title>
 </head>
 <body>
     <h1>Product List</h1>
@@ -11,16 +11,32 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        const socket = io(); // Establish WebSocket connection
+        const socket = io();  // Connect to WebSocket server
 
-        // Listen for the 'newProduct' event to dynamically add new products in real-time
+        // Request the initial list of products when the page loads
+        socket.emit('requestProducts');
+
+        // Listen for the 'productsList' event to display products
+        socket.on('productsList', (products) => {
+            const productList = document.getElementById('product-list');
+            productList.innerHTML = '';  // Clear existing products
+
+            // Loop through each product and add it to the list
+            products.forEach((product) => {
+                const newItem = document.createElement('li');
+                newItem.textContent = `${product.name} - ${product.price}`;
+                productList.appendChild(newItem);
+            });
+        });
+
+        // Listen for the 'newProduct' event to handle new products in real-time
         socket.on('newProduct', (newProducts) => {
             const productList = document.getElementById('product-list');
-            
-            // Append each new product to the list
-            newProducts.forEach((newProduct) => {
+
+            // Add each new product to the list
+            newProducts.forEach((product) => {
                 const newItem = document.createElement('li');
-                newItem.textContent = `${newProduct.name} - ${newProduct.price}`;
+                newItem.textContent = `${product.name} - ${product.price}`;
                 productList.appendChild(newItem);
             });
         });

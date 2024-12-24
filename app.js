@@ -129,7 +129,6 @@ app.get('/api/products', async (req, res) => {
 });
 
 
-// Add /api/grn_product/:count? route to generate and insert multiple products (optional count, default is 1)
 app.get('/api/gen_product/:count?', async (req, res) => {
   const count = parseInt(req.params.count, 10) || 1; // Default to 1 if no count is provided
 
@@ -149,18 +148,14 @@ app.get('/api/gen_product/:count?', async (req, res) => {
         RETURNING *;
       `;
 
-      // Insert each product into the database
       const result = await pool.query(insertQuery, [product.name, product.description, product.price]);
       products.push(result.rows[0]); // Collect the inserted product
-   
     }
 
     // Broadcast the new product to all connected clients
     io.emit('newProduct', products);  // Emit to all connected clients
 
     res.json({ success: true, products });
-
-    //res.json({ success: true, products });
   } catch (err) {
     console.error('Error generating products:', err.stack);
     res.status(500).json({ success: false, error: 'Internal Server Error' });
