@@ -89,6 +89,38 @@ app.get('/api/genuser/:count?', async (req, res) => {
     res.status(500).json({ success: false, error: 'Internal Server Error' });
   }
 });
+// Add /api/grn_product/:count? route to generate and insert multiple products (optional count, default is 1)
+app.get('/api/gen_product/:count?', async (req, res) => {
+  const count = parseInt(req.params.count, 10) || 1; // Default to 1 if no count is provided
+
+  try {
+    const products = [];
+
+    for (let i = 0; i < count; i++) {
+      const product = {
+        name: faker.commerce.productName(), // Generate random product name
+        description: faker.commerce.productDescription(), // Generate random product description
+        price: parseFloat(faker.commerce.price()), // Generate random product price
+      };
+
+      const insertQuery = `
+        INSERT INTO products (name, description, price)
+        VALUES ($1, $2, $3)
+        RETURNING *;
+      `;
+
+      // Insert each product into the database
+      const result = await pool.query(insertQuery, [product.name, product.description, product.price]);
+      products.push(result.rows[0]); // Collect the inserted product
+    }
+
+    res.json({ success: true, products });
+  } catch (err) {
+    console.error('Error generating products:', err.stack);
+    res.status(500).json({ success: false, error: 'Internal Server Error' });
+  }
+});
+
 
 
 
