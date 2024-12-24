@@ -63,9 +63,9 @@ app.get('/api/user', async (req, res) => {
 app.get('/api/genuser', async (req, res) => {
   try {
     const user = {
-      name: faker.name.fullName(),
+      name: faker.person.fullName(), // Updated for Faker.js v8+
       email: faker.internet.email(),
-      age: faker.datatype.number({ min: 18, max: 80 }), // Random age between 18 and 80
+      age: faker.number.int({ min: 18, max: 80 }), // Updated for Faker.js v8+
     };
 
     const insertQuery = `
@@ -82,6 +82,7 @@ app.get('/api/genuser', async (req, res) => {
     res.status(500).json({ success: false, error: 'Internal Server Error' });
   }
 });
+
 
 
 
